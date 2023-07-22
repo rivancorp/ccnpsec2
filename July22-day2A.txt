@@ -1,0 +1,443 @@
+TASK1: Protect Cisco devices:
+•	Configure and encrypt passwords.
+•	Configure a login warning banner.
+•	Configure enhanced username password security.
+•	Configure enhanced virtual login security.
+•	Configure an SSH server on R1.
+•	Research terminal emulation client software and configure the SSH client.
+•	Configure an SCP server on R1.
+
+task1: Task 1: Configure and Encrypt Passwords on Routers R1 and R3
+@allDevcies:
+config t
+security passwords min-length 8
+enable algorithm-type scrypt secret C1sc0123
+service password-encryption
+!
+line console 0
+password C1sc0123
+exec-timeout 5 0
+login
+logging synchronous
+!
+line vty 0 4
+password C1sc0123
+exec-timeout 5 0
+transport input telnet
+login
+!
+banner motd @
+########################
+########################
+danger danager danger
+########################
+########################
+
+Task2: Task 3: Configure Enhanced Username Password Security 
+
+config t
+username user01 algorithm-type scrypt secret C1sc0123
+line console 0
+ login local
+ end
+ 
+Task3: Task 4: Configure the SSH Server on Router R1 and R3
+to create the user ID with the highest possible privilege level and a secret password.
+
+config t
+ip domain-name ccnasecurity.com
+username admin privilege 15 algorithm-type scrypt secret C1sc0123
+line vty 0 4
+privilege level 15
+login local
+transport input all
+exit
+
+!Step 4: Erase existing key pairs on the router.
+
+config t
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+do sh ip ssh
+ip ssh time-out 90
+ip ssh authentication-retries 3
+
+TASK4: SSH is configured on the router,
+configure the R1 router as a secure copy (SCP) server.
+
+config t
+aaa new-model
+aaa authentication login default local
+aaa authorization exec default local
+ip scp server enable
+
+R3# copy scp: flash:
+
+TASK5: CREATING ROLES IN CISCO DEVICES:
+
+STEP1: enable root view:
+config t
+aaa new-model
+enable view
+
+STEP2: Create New Views for the Admin1, Admin2, and Tech Roles on R1 
+
+Step 1: Create the admin1 view, establish a password, and assign privileges.
+
+config t
+no parser view admin1
+parser view admin1
+secret C1sc0123
+commands ?
+!!d.	Add all config, show, and debug commands to the
+!!admin1 view and then exit from view configuration mode.
+commands exec include all show
+commands exec include all config terminal
+commands exec include all debug
+!user admin1
+enable view admin1
+C1sc0123
+
+show parser view
+SECUREme#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+SECUREme(config)#hostname AHAHA
+
+a.	The admin2 user is a junior administrator in training who is allowed to view all
+configurations but is not allowed to configure the routers or use debug commands
+
+!become bossing Again:
+enable view
+config t
+C1sc0123
+
+config t
+parser view admin2
+secret C1sc0123
+commands exec include all show
+end
+
+enable view admin2
+C1sc0123
+show parser view
+
+##Step 3: Create the tech view, establish a password, and assign privileges.
+a.	The tech user typically installs end-user devices and cabling.
+Tech users are only allowed to use selected show commands	
+
+config t
+enable view
+C1sc0123
+
+config t
+parser view techlang
+secret techlang
+commands exec include show version
+commands exec include show interfaces
+commands exec include show ip interface brief
+commands exec include show parser view
+end
+enable view tech
+
+TASK5:Part 4: Configure IOS Resilience and Management Reporting
+
+
+R1(config)# secure boot-image
+hides the file from the dir command and show commands. The file cannot be viewed, 
+copied, modified, or removed using EXEC mode commands. 
+
+R1(config)# secure boot-config
+command takes a snapshot of the router running configuration 
+and securely archives it in persistent storage (flash
+
+show secure bootset
+
+remove this superSecure:
+config t
+no secure boot-image
+no secure boot-config
+
+https://signup.umbrella.com/success
+C1sc,0123
+
+CiscoRadiusAuth:
+TASK6: 
+config t
+aaa new-model
+aaa authentication login default group radius none
+radius server CCNPSEC
+ address ipv4 10.12.1.10
+ key cybersec
+end
+
+c1kJP:
+config t
+aaa new-model
+radius-server vsa send authentication
+radius server RAD
+  address ipv4 192.168.233.8
+  no non-standard
+  key C1sc0123!
+  end
+
+tunaynaSW:  shell:priv-lvl=15
+	conf 
+        enable secret pass
+        username admin password pass
+	aaa new-model
+	radius-server host 192.168.233.8 key C1sc0123!
+	ip radius source-interface Vlan1
+	aaa authentication login default group radius local
+	int vlan 1
+          ip add 192.168.233.7 255.255.255.0
+        end
+
+forTElnet/ssh:
+config t
+aaa authentication login TELNET_LINES group radius
+line vty 0 4
+ login authentication TELNET_LINES
+
+
+
+###########################################
+##############sSecuring Switches############
+
+Part 2: Configure SSH Access to the Switches
+•	Configure SSH version 2 access on the switch.
+•	Configure an SSH client to access the switch.
+•	Verify the configuration.
+Part 3: Configure Secure Trunks and Access Ports
+•	Configure trunk port mode.
+•	Change the native VLAN for trunk ports.
+•	Verify trunk configuration.
+•	Enable storm control for broadcasts.
+•	Configure access ports.
+•	Enable PortFast and BPDU guard.
+•	Verify BPDU guard.
+•	Enable root guard.
+•	Enable loop guard.
+•	Configure and verify port security.
+•	Disable unused ports.
+•	Move ports from default VLAN 1 to alternate VLAN.
+•	Configure the PVLAN Edge feature on a port.
+Part 4: Configure IP DHCP Snooping
+•	Configure DHCP on R1.
+•	Configure Inter-VLAN communication on R1.
+•	Configure S1 interface F0/5 as a trunk.
+•	Verify DHCP operation on PC- A and B.
+•	Enable DHCP Snooping.
+•	Verify DHCP Snooping.
+
+task7: SSH to Switch:
+done!!
+
+Task8: Part 3: Configure Secure Trunks and Access Ports
+
+TASK9: mAKE A ROOTSWITCH:
+CORETAAS:
+config t
+spanning-tree vlan 1 priority 0
+
+COREbaba:
+config t
+spanning-tree vlan 1 priority 1
+
+Trunnk: 11/12
+both:
+config t
+int range fa 0/11-12
+ swi tru encap dot1Q
+ swi mo trunk
+end
+
+TASK10: CHANGE THE NATIVE VLAN TO PREVENT VLAN HOPPING ATTACKS:
+
+both:
+config t
+int range fa 0/11-12
+switchport trunk native vlan 99
+
+TASK11: PREVENT THE USE OF DTP ON TAAS/BABA SO THAT
+NO dtp frames:
+
+both:
+config t
+int range fa 0/11-12
+switchport nonegotiate
+
+S1# show interfaces f0/1 trunk
+
+Port        Mode         Encapsulation  Status        Native vlan
+Fa0/11       on           802.1q         trunking      99
+S1# show interfaces f0/1 switchport
+
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+
+sh run | begin fa0/11
+
+TASK11: HOW TO ATTACK:
+Network attackers hope to spoof their system, or a rogue switch that they add to the network
+as the root bridge in the topology by manipulating the STP root bridge parameters
+If a port that is configured with PortFast receives a BPDU, STP can put the port into
+the blocking state by using a feature called BPDU guard.
+
+tAAS/BABA:
+Disable trunking on fa0/1-8
+conf t
+int range fa0/1-8
+switchport mode access
+spanning-tree portfast
+spanning-tree bpduguard enable
+no cdp enable
+ 
+TASK12: ENABLE ROOTGUARD:
+Root guard is another option to help prevent rogue switches and spoofing
+Root guard can be enabled on all ports on a switch that are not root ports
+It is normally enabled only on ports connecting to edge switches where a
+superior BPDU should never be received
+
+tO_edge(config)# interface g0/1
+tO_edge(config-if)# spanning-tree guard root
+
+
+TASK13:
+The STP loop guard feature provides additional 
+protection against Layer 2 forwarding loops (STP loops). 
+An STP loop is created when an STP blocking port in a redundant 
+topology erroneously transitions to the forwarding state
+
+a.	Loop guard should be applied to non-designated ports.
+Therefore, the global command can be configured on non-root switches. 
+
+non-rootSW(config)# spanning-tree loopguard default
+
+show spanning-tree summary
+Switch is in pvst mode
+
+Extended system ID           is enabled
+Portfast Default             is disabled
+PortFast BPDU Guard Default  is disabled
+Portfast BPDU Filter Default is disabled
+Loopguard Default            is enabled
+EtherChannel misconfig guard is enabled
+UplinkFast                   is disabled
+BackboneFast                 is disabled
+Configured Pathcost method used is short
+
+TASK13:Configure Port Security and Disable Unused Ports
+
+config t
+switchport port-security
+switchport port-security mac-address sticky
+switchport port-security maximum 3
+switchport port-security violation shutdown
+end
+show port-security address
+show port-security interface f0/5
+
+##for devices with IPPHones:
+
+config t
+int range fa 0/3,fa0/5,fa0/7
+switchport mode access
+switchport port-security
+switchport port-security maximum 3
+switchport port-security violation shutdown
+switchport port-security aging time 120
+
+TASK14: Step 9: Configure a port with the PVLAN Edge feature
+no traffic be forwarded at Layer 2 between ports on the same switch so that one neighbor
+does not see the traffic generated by another neighbor. 
+Private VLAN (PVLAN) Edge feature, also known as protected ports, ensures that there is no
+exchange of unicast, broadcast, or multicast traffic between these ports on the switch.
+
+SWwithKALI(config)# interface f0/9
+!! kali si here.
+SWwithKALI(config-if)# switchport protected
+
+TASK14:Configure DHCP Snooping.
+DHCP snooping is a Cisco Catalyst feature that determines which switch ports 
+can respond to DHCP requests. It enables only authorized DHCP servers
+to respond to DHCP requests and distribute network information to clients
+ 
+
+Make a Router on Stick:
+
+config t
+ip dhcp Excluded-add 10.12.1.1 10.12.1.100
+ip dhcp Excluded-add 10.12.10.1 10.12.10.100
+ip dhcp Excluded-add 10.12.50.1 10.12.50.100
+ip dhcp Excluded-add 10.12.100.1 10.12.100.100
+ip dhcp pool MGMTDATA
+   network 10.12.1.0 255.255.255.0
+   default-router 10.12.1.4
+   domain-name MGMTDATA.COM
+   dns-server 10.12.1.10
+ip dhcp pool WIFIDATA
+   network 10.12.10.0 255.255.255.0
+   default-router 10.12.10.4
+   domain-name WIFIDATA.COM
+   dns-server 10.12.1.10
+ip dhcp pool IPCCTV
+   network 10.12.50.0 255.255.255.0
+   default-router 10.12.50.4
+   domain-name IPCCTV.COM
+   dns-server 10.12.1.10
+ip dhcp pool VOICEVLAN
+   network 10.12.100.0 255.255.255.0
+   default-router 10.12.100.4
+   domain-name VOICEVLAN.COM
+   dns-server 10.12.1.10
+   option 150 ip 10.12.100.8   
+int gi 0/0/0.1
+ encap dot1q 1
+ ip add 10.m.1.1 255.255.255.0
+int gi 0/0/0.10
+ encap dot1q 1
+ ip add 10.m.10.1 255.255.255.0
+int gi 0/0/0.50
+ encap dot1q 50
+ ip add 10.m.50.1 255.255.255.0 
+int gi 0/0/0.100
+ encap dot1q 50
+ ip add 10.m.100.1 255.255.255.0
+end
+
+SWbaba:
+config t
+int gi 0/1
+swi trunk encap dot1q
+swi mode trunk
+swi trunk native vlan 99
+
+SWbaba:
+config t
+ip dhcp snooping
+ip dhcp snooping information option
+ip dhcp snooping vlan 1,10,50,100
+int range fa 0/9
+ ip dhcp snooping limit rate 10
+ !limit the asking of IPaddress
+ 
+SWbaba: Identify the trusted interface(s).
+DHCP responses are only permitted through trusted ports.
+
+corebaba#(config)# interface gi 0/1
+corebaba#(config-if)# description connects to DHCP server
+corebaba#(config-if)# ip dhcp snooping trust
+
+# show ip dhcp snooping
+
+DHCP snooping is configured on following VLANs:
+1,20
+DHCP snooping is operational on following VLANs:
+1,20
+
+ 

