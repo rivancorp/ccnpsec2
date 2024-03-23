@@ -1,0 +1,575 @@
+CCNP ENCOR DAY5: DATACENTER
+TASK1: CATALYST VS DATACENTER.
+CMD:
+PING 10.10.10.10
+PING
+10.10.10.1
+10.10.10.2
+10.10.10.3
+10.10.10.4
+
+task2: CORE DISTRIBUTION ACCESS:design:
+
+will be replace by Nexus 9000 Switches
+is replacing. 1/2 waiting time!
+
+Nexus9000v
+admin
+C1sc0123
+
+TASK3: WHAT DO WITH nEXUS:
+NXOSa# dir bootflash: | inc bin
+ 1956867584    Aug 04 22:58:29 2021  nxos.9.3.8.bin
+
+@bothNEXUS:
+config t
+boot nxos bootflash:nxos.9.3.8.bin
+end
+copy run start
+
+TASK4: HOW TO CONFIGURE NEXUS 9000 in realworld:
+Nexus is USELESS, all features are OFF!
+show feature
+config t
+feature ospf
+feature nv overlay
+feature vn-segment-vlan-based
+system jumbomtu 9216
+end
+copy run start
+
+TASK5: CONFIGURE INTERNFACES AND LOOPBACKS.
+VXLAN = THE POWER OF NEXUS SWITCH:
+@NexusONE
+config t
+router ospf 10
+exit
+int e1/1
+ no switchport
+ ip address 100.1.1.1/30
+ ip router ospf 10 area 0
+ no shutdown
+ exit
+Int loopback 0
+ ip address 10.10.10.10/32
+ ip router ospf 10 area 0
+exit
+vlan 50
+ vn-segment 5000
+exit
+interface eth 1/5-6
+ switchport
+ switchport access vlan 50
+ exit
+Interface Nve 1
+ no shutdown
+ source-interface loopback 0
+ member vni 5000
+  ingress-replication protocol static
+    peer-ip 20.20.20.20
+  exit
+@@@n9k2
+config t
+feature ospf
+feature nv overlay
+feature vn-segment-vlan-based
+system jumbomtu 9216
+!
+router ospf 10
+!
+interface eth 1/1
+ no switchport
+ ip address 100.1.1.2/30
+ ip router ospf 10 area 0
+ no shut
+interface loopback0
+ ip address 20.20.20.20/32
+ ip router ospf 10 area 0
+!
+vlan 50
+ vn-segment 5000
+
+interface ethernet 1/5-6
+  switchport
+  switchport access vlan 50
+  no shutdown
+
+interface nve 1
+  no shutdown
+  source-interface loopback 0
+  member vni 5000
+   ingress-replication protocol static
+     peer-ip 10.10.10.10
+	 exit
+
+TASK6: Enable VXLAN, Vni, MP-BGP features.
+SPINE:
+config t
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature nv overlay
+
+@BOTH LEAF:
+show feature
+config t
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+TASK7: NEXUS 9000V for POOR People.
+IF YOU HAVE 32gb RAM,i7 Only = Poor!!!
+@spine/leaf:
+config t
+config t
+hardware access-list tcam region ifacl 0
+hardware access-list tcam region vacl 0
+hardware access-list tcam region racl 0
+hardware access-list tcam region mac-ifacl 256
+hardware access-list tcam region vpc-convergence 0
+hardware access-list tcam region arp-ether 256 double-wide
+end
+copy run start
+reload
+
+@LEAF1:
+config t
+interface loopback0
+  ip address 10.1.0.2/32
+  no shut
+interface loopback254
+  ip address 10.1.254.2/32
+  no shut
+interface Ethernet1/1
+  description LEAF1
+  no switchport
+  mtu 9216
+  medium p2p
+  ip unnumbered loopback0
+  no shutdown
+
+@LEAF2:
+config t
+hostname LEAFtwo
+interface loopback0
+  ip address 10.1.0.3/32
+  no shut
+interface loopback254
+  ip address 10.1.254.3/32
+  no shut
+interface Ethernet1/1
+  description LEAF2
+  no switchport
+  mtu 9216
+  medium p2p
+  ip unnumbered loopback0
+  no shutdown
+
+TASK8: UNDERLAY OSPF CONFIGURATION for MPbgp (later)
+@leafone:
+config t
+router ospf 254
+router-id 10.1.0.2
+log-adjacency-changes
+Int lo0
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+ exit
+Int lo254
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+ exit
+Int e1/1
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+ exit
+@LEAF2:
+config t
+router ospf 254
+router-id 10.1.0.3
+log-adjacency-changes-detail
+int lo 0
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+int lo 254
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+int e1/1
+ ip router ospf 254 area 0
+ ip ospf network point-to-point
+end
+show ip ospf neighbor
+show ip route ospf
+
+TASK9: ENABLE MULTICAST ROUTING PIM: sparse-mode for the RP
+       Point:
+@Leafone: 
+config t
+ip pim anycast-rp 10.1.254.254 10.1.0.2
+ip pim rp-address 10.1.254.254 group-list 239.239.239.0/24
+int lo0
+ ip pim sparse-mode
+int lo254
+ ip pim sparse-mode
+int e1/1
+ ip pim sparse-mode
+@@@ LeafTWO.
+config t
+ip pim rp-address 10.1.254.254 group-list 239.239.239.0/24
+int lo0
+ ip pim sparse-mode
+int lo254
+ ip pim sparse-mode
+int e1/1
+ ip pim sparse-mode
+
+TASK10: VXLAN FOR DATACENTER CONFIG: more advanced.
+@LeafONE: /leafTWO
+config t
+vlan 3001
+ name VNI3-RIVAN
+ vn-segment 31001
+ exit
+ vrf context RIVANVRF
+   vni 31001
+   rd auto
+   address-family ipv4 unicast
+     route-target both auto
+     route-target both auto evpn
+     exit
+     exit
+  int vlan 3001
+     no shut
+     mtu 9216
+     vrf member RIVANVRF
+     ip forward
+     exit
+  Int nve1
+     no shut
+     source-interace loopback 254
+     host-reachability protocol bgp
+     member vni 31001 associate-vrf
+  end
+copy run start
+
+TASK11: CREATE VLANS for Client/PCs:
+@leaf1: / leaf2:
+config t
+vlan 201
+ name pcserver
+ vn-segment 31201
+ exit
+int e1/6
+ switchport
+ switchport access vlan 201
+ no shut
+ show vlan id 201
+
+TASK12: MAKE VLAN201 ROUTABLE AND ALLOW
+        MULTICAST TO TRAVEL IN VLANS:
+@leaf1/leaf2:
+config t
+route-map RIVAN-MAP permit 10
+ match tag 31001
+ exit
+ fabric forwarding anycast-gateway-mac 0000.0000.00aa
+ int vlan 201
+   no shut
+   vrf member RIVANVRF
+   ip add 10.1.201.1/24 tag 31001
+   fabric forwarding mode anycast-gateway
+end
+
+TASK13: DATACENTER VXLAN mustiCast Registration:
+@leaf1:/Leaf2:
+Config t
+Int Nve1
+ member vni 31201
+  suppress-arp
+  mcast-group 239.239.239.201
+  !filterARP+defineMcastGroup
+
+TASK14: MULTI PROTOCOL BGP used in VXLAN.
+@LEAF1:
+config t
+router bgp 65500
+ router-id 10.1.0.2
+ address-family ipv4 unicast
+ neighbor 10.1.0.3
+ remote-as 65500
+ update-source loopback 0
+ address-family ipv4 unicast
+ address-family L2vpn evpn
+   send-community
+   send-community extended
+ vrf RIVANVRF
+   address-family ipv4 unicast
+   advertise l2vpn evpn
+   redistribute direct route-map RIVAN-MAP
+   show bgp l2vpn evpn summary
+copy run start
+
+TASK15: FINAL TASK/IMPORT EXPORT VRFS:
+@leaf1:
+config t
+evpn
+ vni 31201 l2
+  rd auto
+  route-target import auto
+  route-target export auto
+  end
+
+
+@@@@@@@@multicast@@@@@@@@@@
+CORE1 to CORE2
+CORE1 to DIST1
+
+
+CORE-1
+conf t
+ip multicast-routing
+ int g4/0/2
+ no switchport
+ ip add 10.12.12.1 255.255.255.0
+ ip pim sparse-mode
+exit
+int lo0
+ ip add 1.1.1.1 255.255.255.255
+ ip pim sparse-mode
+exit
+ip pim rp-address 1.1.1.1
+int g4/0/3
+ no switchport
+ ip add 10.12.1.1 255.255.255.0
+ ip pim sparse-mode
+exit
+
+
+
+CORE-2
+conf t
+ip multicast-routing
+ int g1/0/2
+ no switchport
+ ip add 10.12.12.2 255.255.255.0
+ ip pim sparse-mode
+exit
+ip pim rp-address 1.1.1.1
+
+
+DIST-1
+conf t
+int fa0/11
+ no switchport
+ ip add 10.12.1.2 255.255.255.0
+ ip pim sparse-mode
+ip igmp join-group 239.1.1.1
+exit
+int fa0/12
+ no switchport
+ ip add 10.1.12.2 255.255.255.0
+ ip pim sparse-mode
+ip igmp join-group 239.1.1.1
+ip pim rp-address 1.1.1.1
+ 
+
+
+
+sh ip pim rp
+sh ip pim rp mapping
+sh ip mroute
+
+
+NEXUS 9000V is the Most Syet to study/malakasPC.
+however, Top of 10% of NetworkEngineers.
+
+ENCOR TASK16: Locator/Identifier Separation Protocol:
+LISP PROTOCOL: or ANTI-BGP, Anti-VPN.
+
+task1: LISP:
+location ID separation Protocol.
+IP address => endPointID(eid) + RoutingLocator(RLOC)
+
+Map Resolver (MR)
+
+@sa tatlong CSR:
+config t
+no logging console
+no ip domain lookup
+ip ssh version 1
+int gi 1
+ no shut
+ ip address dhcp
+ do sh ip int brief
+
+@allRouters:
+config t
+cdp run
+int gi 2
+cdp enable
+no shut
+int gi 3
+cdp enable
+no shut
+end
+@R2:
+conf t
+router ospf 1
+network 2.2.2.2 0.0.0.0 area 0
+network 130.0.0.2 0.0.0.0 area 0
+network 140.0.0.2 0.0.0.0 area 0
+int lo 0
+ip add 2.2.2.2 255.255.255.255
+int gi 2
+ip add 130.0.0.2 255.255.255.0
+no shut
+int gi 3
+ip add 140.0.0.2 255.255.255.0
+no shut
+end
+
+R1:
+conf t
+router ospf 1
+network 130.0.0.1 0.0.0.0 area 0
+int gi 2
+ip add 130.0.0.1 255.255.255.0
+no shut
+int lo 0
+ ip add 1.1.1.1 255.255.255.255
+end
+R3:
+conf t
+router ospf 1
+network 140.0.0.3 0.0.0.0 area 0
+int gi 3
+ip add 140.0.0.3 255.255.255.0
+no shut
+int lo 0
+ ip add 3.3.3.3 255.255.255.255
+end
+
+LISP CONFGIURATION: MAP SERVER/MAP RESOLVER.
+R2: mapserver/mapresolver: can Ping everyone:
+config t
+router lisp
+ipv4 map-server
+ipv4 map-resolver
+!
+lisp site siteR3
+eid-prefix 3.3.3.3/32
+authentication-key rivansite3
+!
+lisp site siteR1
+eid-prefix 1.1.1.1/32
+authentication-key rivansite1
+!
+ip lisp map-server
+ip lisp map-resolver
+!
+show list site
+show ip lisp map-cache
+show ip list database
+end
+@ETR/ITR:
+R1:
+config t
+router Lisp
+database-mapping 1.1.1.1/32 130.0.0.1 priority 1 weight 100
+ipv4 itr
+ipv4 itr map-resolver 2.2.2.2
+ipv4 etr
+ipv4 etr map-server 2.2.2.2 key rivansite1
+end
+R3:
+config t
+router Lisp
+database-mapping 3.3.3.3/32 140.0.0.3 priority 1 weight 100
+ipv4 itr
+ipv4 itr map-resolver 2.2.2.2
+ipv4 etr
+ipv4 etr map-server 2.2.2.2 key rivansite3
+end
+
+HOW TO PASSENCOR IN 3 WEEKS?
+1. hands-on: RSThayup/NO copy PASTE!
+2. CSR1000 + postman: Put,Patch,Delete.
+3. JSON with Python.
+"python syntax!"
+4. The Lastest September Encor Exam Accurate.: 560Q
+5. 80Q
+6. https://sandboxdnac.cisco.com/dna/home
+visit 2 minutes!
+
+R1:
+conf t
+router ospf 1
+network 130.0.0.1 0.0.0.0 area 0
+int gi 2
+ip add 130.0.0.1 255.255.255.0
+no shut
+int lo 0
+ ip add 1.1.1.1 255.255.255.255
+end
+R3:
+conf t
+router ospf 1
+network 140.0.0.3 0.0.0.0 area 0
+int gi 3
+ip add 140.0.0.3 255.255.255.0
+no shut
+int lo 0
+ ip add 3.3.3.3 255.255.255.255
+end
+@ETR/ITR:
+R1:
+config t
+router Lisp
+database-mapping 1.1.1.1/32 130.0.0.1 priority 1 weight 100
+ipv4 itr
+ipv4 itr map-resolver 2.2.2.2
+ipv4 etr
+ipv4 etr map-server 2.2.2.2 key rivansite1
+end
+R3:
+config t
+router Lisp
+database-mapping 3.3.3.3/32 140.0.0.3 priority 1 weight 100
+ipv4 itr
+ipv4 itr map-resolver 2.2.2.2
+ipv4 etr
+ipv4 etr map-server 2.2.2.2 key rivansite3
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
